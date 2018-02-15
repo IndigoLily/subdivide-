@@ -1,16 +1,16 @@
 const canvas = document.getElementById('cnv');
 const c = canvas.getContext('2d');
 
-const width  = canvas.width  = innerWidth;
-const height = canvas.height = innerHeight;
+let width  = canvas.width  = innerWidth;
+let height = canvas.height = innerHeight;
 
-c.shadowColor = '#0006';
 const off = Math.random()*360|0;
 
 let rects = [];
 
+// TODO: only floor dimensions when making object
 function subdivide(x, y, w, h, v = true) {
-  if (Math.random() < 0.75 && w*h > 8) {
+  if (Math.random() < 0.75 && w*h > 16) {
     subdivide(x, y, Math.ceil(v ? w/2 : w), Math.ceil(v ? h : h/2), !v);
     subdivide(Math.floor(v ? x + w/2 : x), Math.floor(v ? y : y + h/2), Math.ceil(v ? w/2 : w), Math.ceil(v ? h : h/2), !v);
   } else {
@@ -20,15 +20,17 @@ function subdivide(x, y, w, h, v = true) {
 }
 
 let id = 0;
+let palette = ['#f8fcff', '#fff', '#fff8f4'];
 function draw(n = 0) {
   let rect = rects[n];
   let a = rect.a;
   for (let i = 0; i < (a > 100 ? 1 : 100/a) && n < rects.length && rect.a == a; i++) {
     rect = rects[n++];
     c.shadowBlur = rect.a/width*10;
-    c.fillStyle = rect.col;
+    c.fillStyle = palette[Math.random()*3|0];//rect.col;
     c.fillRect(rect.x, rect.y, rect.w, rect.h);
-    //c.strokeRect(rect.x - 0.5, rect.y - 0.5, rect.w, rect.h);
+    c.shadowBlur = 0;
+    c.strokeRect(rect.x - 0.5, rect.y - 0.5, rect.w, rect.h);
   }
   if (n < rects.length) id = requestAnimationFrame(()=>draw(n));
 }
@@ -65,11 +67,20 @@ function mergesort(array, fun = (a,b) => a - b) {
 
 function start() {
   cancelAnimationFrame(id);
+
+  width  = canvas.width  = innerWidth;
+  height = canvas.height = innerHeight;
+  c.shadowColor = '#0006';
+
   c.clearRect(0, 0, width, height);
-  rects = [];
-  subdivide(0, 0, width, height, true);
+  do {
+    rects = [];
+    subdivide(0, 0, width, height, true);
+  } while (rects.length <= 2);
+
   rects = mergesort(rects, (a,b) => a.a - b.a);
+
   draw();
 }
 
-start();
+window.onload = start;
