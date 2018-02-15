@@ -4,8 +4,6 @@ const c = canvas.getContext('2d');
 let width  = 0;
 let height = 0;
 
-const off = Math.random()*360|0;
-
 let rects = [];
 
 function subdivide(x, y, w, h, v = true) {
@@ -13,20 +11,20 @@ function subdivide(x, y, w, h, v = true) {
     subdivide(x, y, (v ? w/2 : w), (v ? h : h/2), !v);
     subdivide((v ? x + w/2 : x), (v ? y : y + h/2), (v ? w/2 : w), (v ? h : h/2), !v);
   } else {
-    let col = `hsl(${(Math.floor(Math.random()*3) * 360/3 + off)%360|0}, 100%, 50%)`;
+    let col = palette[Math.random()*3|0];
     rects.push({x, y, w, h, col, get a() {return this.w*this.h}});
   }
 }
 
 let id = 0;
-let palette = ['#f8fcff', '#fff', '#fff8f4'];
+let palette = ['#f8fcff', '#fff', '#fff8f8'];
 function draw(n = 0) {
   let rect = rects[n];
   let a = rect.a;
-  for (let i = 0; i < (a > 100 ? 1 : 100/a) && n < rects.length && rect.a == a; i++) {
+  for (let i = 0; i < (a > 30 ? 1 : 30/a) && n < rects.length && rect.a == a; i++) {
     rect = rects[n++];
     c.shadowBlur = rect.a/width*10;
-    c.fillStyle = palette[Math.random()*3|0];//rect.col;
+    c.fillStyle = rect.col;
     c.fillRect(rect.x, rect.y, rect.w, rect.h);
     c.shadowBlur = 0;
     c.strokeRect(rect.x - 0.5, rect.y - 0.5, rect.w, rect.h);
@@ -76,7 +74,7 @@ function start() {
   c.clearRect(0, 0, width, height);
   do {
     rects = [];
-    subdivide(0, 0, width - 1, height - 1, true);
+    subdivide(0, 0, width - 1, height - 1, false);
   } while (rects.length <= 2);
   console.log('Created');
 
