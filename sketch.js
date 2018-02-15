@@ -19,6 +19,7 @@ function subdivide(x, y, w, h, v = true) {
   }
 }
 
+let id = 0;
 function draw(n = 0) {
   let rect = rects[n];
   let a = rect.a;
@@ -29,7 +30,7 @@ function draw(n = 0) {
     c.fillRect(rect.x, rect.y, rect.w, rect.h);
     //c.strokeRect(rect.x - 0.5, rect.y - 0.5, rect.w, rect.h);
   }
-  if (n < rects.length) requestAnimationFrame(()=>draw(n));
+  if (n < rects.length) id = requestAnimationFrame(()=>draw(n));
 }
 
 function merge(left, right, fun = (a,b) => a - b) {
@@ -63,6 +64,7 @@ function mergesort(array, fun = (a,b) => a - b) {
 }
 
 function start() {
+  cancelAnimationFrame(id);
   c.clearRect(0, 0, width, height);
   rects = [];
   subdivide(0, 0, width, height, true);
