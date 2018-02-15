@@ -6,10 +6,11 @@ let height = 0;
 
 let rects = [];
 
-function subdivide(x, y, w, h, v = true) {
-  if (Math.random() < 3/4 && w*h > 16) {
-    subdivide(x, y, (v ? w/2 : w), (v ? h : h/2), !v);
-    subdivide((v ? x + w/2 : x), (v ? y : y + h/2), (v ? w/2 : w), (v ? h : h/2), !v);
+function subdivide(x, y, w, h) {
+  if (Math.random() < 1/2 && w*h > 16) {
+    for (let i = 0; i < 4; i++) {
+      subdivide(i%2?x + w/2:x, i/2|0?y + h/2:y, w/2, h/2);
+    }
   } else {
     let col = palette[Math.random()*3|0];
     rects.push({x, y, w, h, col, get a() {return this.w*this.h}});
@@ -32,6 +33,16 @@ function draw(n = 0) {
   if (n < rects.length) id = requestAnimationFrame(()=>draw(n));
 }
 
+function mergesort(array, fun = (a,b) => a - b) {
+  if (array.length > 1) {
+    let left  = array.slice(0, array.length/2|0);
+    let right = array.slice(array.length/2|0, array.length);
+    return merge(mergesort(left, fun), mergesort(right, fun), fun);
+  } else {
+    return array;
+  }
+}
+
 function merge(left, right, fun = (a,b) => a - b) {
   let merged = [];
 
@@ -50,16 +61,6 @@ function merge(left, right, fun = (a,b) => a - b) {
   return merged;
 }
 
-function mergesort(array, fun = (a,b) => a - b) {
-  if (array.length > 1) {
-    let left  = array.slice(0, array.length/2|0);
-    let right = array.slice(array.length/2|0, array.length);
-    return merge(mergesort(left, fun), mergesort(right, fun), fun);
-  } else {
-    return array;
-  }
-}
-
 function start() {
   cancelAnimationFrame(id);
 
@@ -74,8 +75,8 @@ function start() {
   c.clearRect(0, 0, width, height);
   do {
     rects = [];
-    subdivide(0, 0, width - 1, height - 1, false);
-  } while (rects.length <= 2);
+    subdivide(0, 0, width - 1, height - 1);
+  } while (rects.length <= 4);
   console.log('Created');
 
   rects = mergesort(rects, (a,b) => a.a - b.a);
