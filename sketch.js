@@ -10,7 +10,7 @@ const off = Math.random()*360|0;
 let rects = [];
 
 function subdivide(x, y, w, h, v = true) {
-  if (Math.random() < 0.75 && w*h > 16) {
+  if (Math.random() < 0.75 && w*h > 8) {
     subdivide(x, y, Math.ceil(v ? w/2 : w), Math.ceil(v ? h : h/2), !v);
     subdivide(Math.floor(v ? x + w/2 : x), Math.floor(v ? y : y + h/2), Math.ceil(v ? w/2 : w), Math.ceil(v ? h : h/2), !v);
   } else {
@@ -36,7 +36,7 @@ function merge(left, right, fun = (a,b) => a - b) {
   let merged = [];
 
   while (left.length && right.length) {
-    if (fun(left[0], right[0]) < 0) {
+    if (fun(left[0], right[0]) <= 0) {
       merged = merged.concat(left.splice(0, 1));
     } else {
       merged = merged.concat(right.splice(0, 1));
@@ -52,14 +52,21 @@ function merge(left, right, fun = (a,b) => a - b) {
   return merged;
 }
 
-function mergesort(fun = (a,b) => a - b, array) {
+function mergesort(array, fun = (a,b) => a - b) {
+  if (array.length > 1) {
+    let left  = array.slice(0, array.length/2|0);
+    let right = array.slice(array.length/2|0, array.length);
+    return merge(mergesort(left, fun), mergesort(right, fun), fun);
+  } else {
+    return array;
+  }
 }
 
 function start() {
   c.clearRect(0, 0, width, height);
   rects = [];
   subdivide(0, 0, width, height, true);
-  rects.sort((a,b) => a.a - b.a);
+  rects = mergesort(rects, (a,b) => a.a - b.a);
   draw();
 }
 
