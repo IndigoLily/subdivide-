@@ -32,7 +32,27 @@ function draw(n = 0) {
   if (n < rects.length) requestAnimationFrame(()=>draw(n));
 }
 
-function mergesort(fun, array) {
+function merge(left, right, fun = (a,b) => a - b) {
+  let merged = [];
+
+  while (left.length && right.length) {
+    if (fun(left[0], right[0]) < 0) {
+      merged = merged.concat(left.splice(0, 1));
+    } else {
+      merged = merged.concat(right.splice(0, 1));
+    }
+  }
+
+  if (left.length) {
+    merged = merged.concat(left);
+  } else if (right.length) {
+    merged = merged.concat(right);
+  }
+
+  return merged;
+}
+
+function mergesort(fun = (a,b) => a - b, array) {
 }
 
 function start() {
