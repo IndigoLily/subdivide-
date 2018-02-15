@@ -1,18 +1,17 @@
 const canvas = document.getElementById('cnv');
 const c = canvas.getContext('2d');
 
-let width  = canvas.width  = innerWidth;
-let height = canvas.height = innerHeight;
+let width  = 0;
+let height = 0;
 
 const off = Math.random()*360|0;
 
 let rects = [];
 
-// TODO: only floor dimensions when making object
 function subdivide(x, y, w, h, v = true) {
-  if (Math.random() < 0.75 && w*h > 16) {
-    subdivide(x, y, Math.ceil(v ? w/2 : w), Math.ceil(v ? h : h/2), !v);
-    subdivide(Math.floor(v ? x + w/2 : x), Math.floor(v ? y : y + h/2), Math.ceil(v ? w/2 : w), Math.ceil(v ? h : h/2), !v);
+  if (Math.random() < 3/4 && w*h > 16) {
+    subdivide(x, y, (v ? w/2 : w), (v ? h : h/2), !v);
+    subdivide((v ? x + w/2 : x), (v ? y : y + h/2), (v ? w/2 : w), (v ? h : h/2), !v);
   } else {
     let col = `hsl(${(Math.floor(Math.random()*3) * 360/3 + off)%360|0}, 100%, 50%)`;
     rects.push({x, y, w, h, col, get a() {return this.w*this.h}});
@@ -68,18 +67,25 @@ function mergesort(array, fun = (a,b) => a - b) {
 function start() {
   cancelAnimationFrame(id);
 
-  width  = canvas.width  = innerWidth;
-  height = canvas.height = innerHeight;
+  let size = 1;
+  while (size * 2 < innerWidth && size * 2 < innerHeight) {
+    size *= 2;
+  }
+  width = canvas.width = height = canvas.height = size + 1;
+
   c.shadowColor = '#0006';
 
   c.clearRect(0, 0, width, height);
   do {
     rects = [];
-    subdivide(0, 0, width, height, true);
+    subdivide(0, 0, width - 1, height - 1, true);
   } while (rects.length <= 2);
+  console.log('Created');
 
   rects = mergesort(rects, (a,b) => a.a - b.a);
+  console.log('Sorted');
 
+  c.translate(1,1);
   draw();
 }
 
